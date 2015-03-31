@@ -9,6 +9,7 @@
 #include <stdarg.h>
 #include <unistd.h>
 #include "read_line.h"
+#include "log.h"
 
 #define NB_CMD 7
 #define CMD_LENGTH 4
@@ -16,11 +17,11 @@
 
 enum Command_Type{ USER, PASS, SYST, PORT, RETR, STOR, LIST,UNKNOWN};
 
-const char * CmdStrings[] = { "USER","PASS","SYST","PORT","RETR","STOR","LIST"};
 const char * getStrForCmd( int enumVal );
 enum Command_Type getCommandType(char* cmd);
 
-static void handleRequest(int cfd, struct sockaddr_in dist_addr);
+//static void handleRequest(int cfd, struct sockaddr_in dist_addr);
+void handleRequest(int cfd);
 
 void respond(int cfd,int code, char* str);
 

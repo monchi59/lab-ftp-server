@@ -11,6 +11,7 @@
 
 #include "ftp_server.h"
 #include "log.h"
+#include "cmd_handler.h"
 
 #define PORT 55555      // Listening server port number
 #define BUF_SIZE 4096   // Buffer size
@@ -29,6 +30,35 @@ int main(int argc, char *argv[])
   LogErr("Hello non-blocking error log\n");
 
   initialise_server(&listening_fd, &server_addr);
+
+  printf("FTP server listening on port: %d\n", ntohs(server_addr.sin_port));
+
+  // Infinit loop to listen requests
+  for (;;) {
+      connected_fd = accept(listening_fd, NULL, NULL);  /* Wait for connection */
+      if (connected_fd == -1) {
+        LogErrExit("Failure in accept()\n");
+      }
+
+      /* Handle each client request in a new child process */
+      switch (fork()) {
+      case -1:
+          LogErrExit("Fork issue: Can't create child (%s)");
+          close(connected_fd);                 /* Give up on this client */
+          break;                      /* May be temporary; try next client */
+      case 0:                         /* Child */
+          // Handle the request
+          handleRequest(connected_fd);
+          close(listening_fd);                 /* Unneeded copy of listening socket */
+          /* The child process has to call _exit() instead of exit() so that it
+          does not flush stdio buffers and that only one process calls exit handlers. */
+          exit(EXIT_SUCCESS);
+
+      default:                        /* Parent */
+          close(connected_fd);                 /* Unneeded copy of connected socket */
+          break;                      /* Loop to accept next connection */
+      }
+  }
 
   return EXIT_SUCCESS;
 
