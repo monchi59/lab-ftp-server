@@ -1,7 +1,6 @@
 #ifndef FTP_SERVER_H
 #define FTP_SERVER_H
 
-void hello();
+void initialise_server(int * listening_fd, struct sockaddr_in * server_addr);
 
 #endif
-

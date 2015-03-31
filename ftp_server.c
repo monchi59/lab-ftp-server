@@ -28,18 +28,41 @@ int main(int argc, char *argv[])
   Log("Hello accress log\n");
   LogErr("Hello non-blocking error log\n");
 
-  // Create the socket file descriptor
-  if ((listening_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1){
-    // Exit error case :
-    LogErrExit("Socket Creation\n");
-  }
+  initialise_server(&listening_fd, &server_addr);
 
-  hello();
   return EXIT_SUCCESS;
 
 }
 
-void hello(){
+void initialise_server(int * listening_fd, struct sockaddr_in * server_addr){
 
-  printf("Hello World\n");
+  // Create the socket file descriptor
+  if ((*listening_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1){
+    // Exit error case :
+    LogErrExit("Socket Creation\n");
+  }
+
+  /* Set the SO_REUSEADDR socket option in order to avoid the EADDRINUSE (Address already in use)
+     error when a TCP server is restarted. */
+  int optval = 1;
+  if (setsockopt(*listening_fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == -1){
+    LogErrExit("Set socket Option\n");
+  }
+
+  // Server address initialisation
+  server_addr->sin_family = AF_INET;
+  server_addr->sin_port = htons(PORT);     /* short, network byte order */
+  server_addr->sin_addr.s_addr = INADDR_ANY; /* automatically fill with my IP */
+  memset(&(server_addr->sin_zero), '\0', 8); /* zero the rest of the struct */
+
+  // Binding the server address to the listening socket
+  if (bind(*listening_fd, (struct sockaddr *)server_addr, sizeof(struct sockaddr)) == -1){
+    LogErrExit("Binding \n");
+  }
+
+  /* Marks the socket as a passive socket (listening socket)
+     and set the maximum number of pending connections to BACKLOG */
+  if (listen(*listening_fd, BACKLOG) == -1){
+    LogErrExit("Binding \n");
+  }
 }
