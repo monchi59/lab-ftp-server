@@ -19,12 +19,14 @@
 
 #define LOGFILE error.log
 
-
 int main(int argc, char *argv[])
 {
 
   int listening_fd, connected_fd; /* Listening and connected sockets */
   struct sockaddr_in server_addr; /* this server address information */
+
+  char * typereq = "TYPE I";
+  printf("getype result: %s\n", getType(typereq));
 
   // Log examples
   Log("Hello accress log\n");
@@ -44,7 +46,7 @@ int main(int argc, char *argv[])
       /* Handle each client request in a new child process */
       switch (fork()) {
       case -1:
-          LogErrExit("Fork issue: Can't create child (%s)");
+          LogErrExit("Fork issue: Can't create child (%s)\n");
           close(connected_fd);                 /* Give up on this client */
           break;                      /* May be temporary; try next client */
       case 0:                         /* Child */

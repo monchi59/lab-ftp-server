@@ -11,15 +11,16 @@
 #include "read_line.h"
 #include "log.h"
 
-#define NB_CMD 7
+#define NB_CMD 8
 #define CMD_LENGTH 4
 #define BUFFER_SIZE 128
 
-enum Command_Type{ USER, PASS, SYST, PORT, RETR, STOR, LIST,UNKNOWN};
+enum Command_Type{ USER, PASS, SYST, PORT, RETR, STOR, LIST, TYPE,UNKNOWN};
 
 const char * getStrForCmd( int enumVal );
 enum Command_Type getCommandType(char* cmd);
 int getPort(char * portRequest);
+char * getType(char * typeRequest);
 
 //static void handleRequest(int cfd, struct sockaddr_in dist_addr);
 void handleRequest(int cfd);

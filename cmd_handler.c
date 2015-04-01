@@ -2,7 +2,7 @@
 
 #define BUF_SIZE 4096   // Buffer size
 
-const char * CmdStrings[] = { "USER","PASS","SYST","PORT","RETR","STOR","LIST"};
+const char * CmdStrings[] = { "USER","PASS","SYST","PORT","RETR","STOR","LIST","TYPE"};
 
 
 enum Command_Type getCommandType(char* cmd){
@@ -25,7 +25,6 @@ const char * getStrForCmd( int enumVal )
 }
 
 int getPort(char * portRequest){
-
   char delimiter[2] = ",";
   char str[BUF_SIZE];
   char * port1;
@@ -44,6 +43,18 @@ int getPort(char * portRequest){
   port = port + atoi(port2);
 
    return port;
+}
+
+char * getType(char * typeRequest){
+  char delimiter[2] = " ";
+  char str[BUF_SIZE];
+  char * type;
+  strcpy(str, typeRequest);
+
+  type = strtok(str, delimiter);
+  type = strtok(NULL, delimiter);
+
+   return type;
 }
 
 //static void handleRequest(int cfd, struct sockaddr_in dist_addr)
@@ -82,6 +93,7 @@ void handleRequest(int cfd)
       case PORT:
       printf("Port command received, port: %d\n", getPort(buf));
       // Create new connexion on new port.
+      respond(cfd, 215, "Unix");
       break;
       case RETR:
       printf("Retr command received\n");
@@ -92,7 +104,14 @@ void handleRequest(int cfd)
       respond(cfd, 150, "Here comes the directory list");
       //TODO send the list via the data channel
       break;
+      case TYPE:
+      printf("Type cmd\n");
+      type = getType(buf);
+      printf("Type command received, type: %s\n", type);
+      respond(cfd, 200, "Switching to type");
+      break;
       case UNKNOWN:
+      printf("Unknown command\n");
       break;
     }
   }
