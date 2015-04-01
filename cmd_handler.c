@@ -2,8 +2,7 @@
 
 #define BUF_SIZE 4096   // Buffer size
 
-const char * CmdStrings[] = { "USER","PASS","SYST","PORT","RETR","STOR","LIST","TYPE"};
-
+const char * CmdStrings[] = { "USER","PASS","SYST","PORT","RETR","STOR","LIST","TYPE", "FEAT"};
 
 enum Command_Type getCommandType(char* cmd){
   for (int i = 0;i<NB_CMD;i++){
@@ -109,6 +108,9 @@ void handleRequest(int cfd)
       type = getType(buf);
       printf("Type command received, type: %s\n", type);
       respond(cfd, 200, "Switching to type");
+      case FEAT://Filezilla needs this command, that asks for features of the server, so we send and empty list.
+      respond(cfd,211,"Extensions supported:");
+      respond(cfd,211,"End");
       break;
       case UNKNOWN:
       printf("Unknown command\n");
