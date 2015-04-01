@@ -6,6 +6,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -25,13 +26,12 @@ enum Command_Type getCommandType(char* cmd);
 int getPort(char * portRequest);
 char * getType(char * typeRequest);
 
-//static void handleRequest(int cfd, struct sockaddr_in dist_addr);
-void handleRequest(int cfd);
+void handleRequest(int cfd, struct sockaddr dist_addr);
 
 void respond(int cfd,int code, char* str);
 void respondData(int cfd, char* str);
 
-void openDataConnexion(int * data_listening_fd, int * data_connected_fd);
+void openDataConnexion(int * data_listening_fd, struct sockaddr client_addr);
 
 void parseFileName(char* buffer,char * cmdString,char * fileName);
 #endif

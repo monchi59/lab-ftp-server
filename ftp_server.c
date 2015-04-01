@@ -24,10 +24,7 @@ int main(int argc, char *argv[])
 
   int listening_fd, connected_fd; /* Listening and connected sockets */
   struct sockaddr_in server_addr; /* this server address information */
-
-  // Log examples
-  Log("Hello accress log\n");
-  LogErr("Hello non-blocking error log\n");
+  struct sockaddr client_addr; /* client address information */
 
   initialise_server(&listening_fd, &server_addr,PORT);
 
@@ -35,7 +32,8 @@ int main(int argc, char *argv[])
 
   // Infinit loop to listen requests
   for (;;) {
-      connected_fd = accept(listening_fd, NULL, NULL);  /* Wait for connection */
+      socklen_t  addrlen = sizeof(struct sockaddr);
+      connected_fd = accept(listening_fd, &client_addr, &addrlen);  /* Wait for connection */
       if (connected_fd == -1) {
         LogErrExit("Failure in accept()\n");
       }
@@ -48,7 +46,7 @@ int main(int argc, char *argv[])
           break;                      /* May be temporary; try next client */
       case 0:                         /* Child */
           // Handle the request
-          handleRequest(connected_fd);
+          handleRequest(connected_fd, client_addr);
           close(listening_fd);                 /* Unneeded copy of listening socket */
           /* The child process has to call _exit() instead of exit() so that it
           does not flush stdio buffers and that only one process calls exit handlers. */
@@ -88,7 +86,7 @@ void initialise_server(int * listening_fd, struct sockaddr_in * server_addr,int 
   // Binding the server address to the listening socket
   if (bind(*listening_fd, (struct sockaddr *)server_addr, sizeof(struct sockaddr)) == -1){
     printf("Binding error\n");
-    LogErrExit("Binding \n");
+    //LogErrExit("Binding \n");
   }
 
   /* Marks the socket as a passive socket (listening socket)
