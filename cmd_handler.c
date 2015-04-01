@@ -1,4 +1,6 @@
 #include "cmd_handler.h"
+#include "filesystem.h"
+
 
 #define BUF_SIZE 4096   // Buffer size
 #define DATA_PORT 55554 // Listening server port number
@@ -77,9 +79,8 @@ void handleRequest(int cfd, struct sockaddr dist_addr){
   }
 
   // data connexion settings
-  int data_listening_fd; /* Listening and connected sockets */
+  int data_client_fd; /* Listening and connected sockets */
   int dataPort;
-  struct sockaddr_in data_addr; /* this server address information */
 
 
   while ((n_bytes_read = readLine(cfd, buf, BUFFER_SIZE)) > 0) {
@@ -101,10 +102,8 @@ void handleRequest(int cfd, struct sockaddr dist_addr){
       case PORT:
       dataPort = getPort(buf);
       printf("Port command received, port: %d\n", dataPort);
-      //initialise_server(&data_listening_fd, &data_addr, DATA_PORT);
-      openDataConnexion(&data_listening_fd, dist_addr, dataPort);
+      openDataConnexion(&data_client_fd, dist_addr, dataPort);
       respond(cfd,200,"Port command successful.");
-      // Create new connexion on new port.
       break;
       case RETR:
       printf("Retr command received\n");
@@ -112,14 +111,13 @@ void handleRequest(int cfd, struct sockaddr dist_addr){
       case STOR:
       break;
       case LIST:
-      printf("list command received\n");
+      printf("List command received\n");
       respond(cfd, 150, "Here comes the directory list");
 
-      printf("send list\n");
-      respondData(data_listening_fd, "file1\nfile2\nfile3");
-      close(data_listening_fd);
+      listDir(data_client_fd, ".");
+
+      close(data_client_fd);
       respond(cfd,226,"Directory send OK.");
-      //TODO send the list via the data channel
       break;
       case TYPE:
       printf("Type cmd\n");
@@ -143,7 +141,7 @@ void respond(int cfd,int code, char* str){
   sprintf(response,"%d %s\n", code,str);
   printf("Respond: %d %s\n", code,str);
   if (write(cfd, response, strlen(response)) != strlen(response)){
-    LogErrExit("write() failed");
+    LogErrExit("write() failed\n");
   }
 
 }
@@ -154,26 +152,25 @@ void respondData(int data_connected_fd, char* str){
   sprintf(response,"%s\n", str);
   printf("Respond data: %s\n",str);
   if (write(data_connected_fd, response, strlen(response)) != strlen(response)){
-    LogErrExit("write() failed");
+    LogErrExit("write() failed\n");
   }
 
 }
 
 
 
-void openDataConnexion(int * data_listening_fd, struct sockaddr client_addr, int port){
-  //*data_connected_fd = accept(*data_listening_fd, NULL, NULL);  /* Wait for connection */
+void openDataConnexion(int * data_client_fd, struct sockaddr client_addr, int port){
 
-  *data_listening_fd = socket(AF_INET, SOCK_STREAM, 0);
-  if (*data_listening_fd == -1){
-    LogErrExit("socket");
+  *data_client_fd = socket(AF_INET, SOCK_STREAM, 0);
+  if (*data_client_fd == -1){
+    LogErrExit("socket\n");
   }
 
   struct sockaddr_in client_addr_in = *((struct sockaddr_in*)&client_addr);      /* server's address information */
   client_addr_in.sin_port = htons(port);  /* short, network byte order */
 
   /* Connect to the server host */
-  if (connect(*data_listening_fd, (struct sockaddr *)&client_addr_in, sizeof(struct sockaddr)) == -1){
+  if (connect(*data_client_fd, (struct sockaddr *)&client_addr_in, sizeof(struct sockaddr)) == -1){
     LogErrExit("Failure connect\n");
   }
 }
