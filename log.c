@@ -44,14 +44,10 @@ void LogErr(char *message) {
   if(file == NULL){
     return;
   } else {
-    // The file is created
-<<<<<<< HEAD
     fputs(message, file);
     fputs("\n",file);
-=======
     addTime(message);
     fprintf(file, "%s\n", message);
->>>>>>> 41db28d1daadeff27274a3f4d7665c2dfb61e48e
   }
 
   if(file){
