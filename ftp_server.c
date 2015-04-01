@@ -35,13 +35,13 @@ int main(int argc, char *argv[])
       socklen_t  addrlen = sizeof(struct sockaddr);
       connected_fd = accept(listening_fd, &client_addr, &addrlen);  /* Wait for connection */
       if (connected_fd == -1) {
-        LogErrExit("Failure in accept()\n");
+        LogErrExit("Failure in accept()");
       }
 
       /* Handle each client request in a new child process */
       switch (fork()) {
       case -1:
-          LogErrExit("Fork issue: Can't create child (%s)\n");
+          LogErrExit("Fork issue: Can't create child");
           close(connected_fd);                 /* Give up on this client */
           break;                      /* May be temporary; try next client */
       case 0:                         /* Child */
@@ -67,14 +67,14 @@ void initialise_server(int * listening_fd, struct sockaddr_in * server_addr,int 
   // Create the socket file descriptor
   if ((*listening_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1){
     // Exit error case :
-    LogErrExit("Socket Creation\n");
+    LogErrExit("Socket Creation");
   }
 
   /* Set the SO_REUSEADDR socket option in order to avoid the EADDRINUSE (Address already in use)
      error when a TCP server is restarted. */
   int optval = 1;
   if (setsockopt(*listening_fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == -1){
-    LogErrExit("Set socket Option\n");
+    LogErrExit("Set socket Option");
   }
 
   // Server address initialisation
@@ -85,13 +85,13 @@ void initialise_server(int * listening_fd, struct sockaddr_in * server_addr,int 
 
   // Binding the server address to the listening socket
   if (bind(*listening_fd, (struct sockaddr *)server_addr, sizeof(struct sockaddr)) == -1){
-    printf("Binding error\n");
-    //LogErrExit("Binding \n");
+    printf("Binding error: is the port already in use?\n");
+    LogErrExit("Binding");
   }
 
   /* Marks the socket as a passive socket (listening socket)
      and set the maximum number of pending connections to BACKLOG */
   if (listen(*listening_fd, BACKLOG) == -1){
-    LogErrExit("Listening \n");
+    LogErrExit("Listening");
   }
 }
