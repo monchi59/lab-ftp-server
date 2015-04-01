@@ -45,6 +45,11 @@ int getPort(char * portRequest){
   return port;
 }
 
+void parseFileName(char* buffer,char * cmdString,char * fileName){
+	fileName = strstr(buffer,cmdString);
+	fileName++; //to remove the first ' ' char
+}
+
 char * getType(char * typeRequest){
   char delimiter[2] = " ";
   char str[BUF_SIZE];

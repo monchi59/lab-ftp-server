@@ -33,4 +33,5 @@ void respondData(int cfd, char* str);
 
 void openDataConnexion(int * data_listening_fd, struct sockaddr client_addr, int port);
 
+void parseFileName(char* buffer,char * cmdString,char * fileName);
 #endif
