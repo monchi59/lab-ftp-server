@@ -12,8 +12,13 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <stdarg.h>
+#include <string.h>
+#include <unistd.h>
 #include <fcntl.h>
+#include <errno.h>
 #include "log.h"
+
+#define WORKING_DIR "/ftp/"
 
 
 #define DATA_BUFFER_SIZE 1448
@@ -21,6 +26,7 @@
 void listDir(int output_fd,char* directory);
 void getFileData(int output_fd,char* file);
 void storFile(int input_fd,char* file);
+void getWD(char* wd);
 
 
 #endif

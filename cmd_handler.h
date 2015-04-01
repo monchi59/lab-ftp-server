@@ -6,6 +6,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <linux/limits.h>
 
 #include <string.h>
 #include <stdio.h>
@@ -15,11 +16,11 @@
 #include "log.h"
 #include "ftp_server.h"
 
-#define NB_CMD 9
+#define NB_CMD 10
 #define CMD_LENGTH 4
 #define BUFFER_SIZE 128
 
-enum Command_Type{ USER, PASS, SYST, PORT, RETR, STOR, LIST,TYPE,FEAT,UNKNOWN};
+enum Command_Type{ USER, PASS, SYST, PORT, RETR, STOR, LIST,TYPE,FEAT,PWD,UNKNOWN};
 
 const char * getStrForCmd( int enumVal );
 enum Command_Type getCommandType(char* cmd);
@@ -33,5 +34,5 @@ void respondData(int cfd, char* str);
 
 void openDataConnexion(int * data_listening_fd, struct sockaddr client_addr, int port);
 
-void parseFileName(char* buffer,char * cmdString,char * fileName);
+void parseFileName(char* buffer,char * fileName);
 #endif

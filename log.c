@@ -40,6 +40,7 @@ void LogErr(char *message) {
   } else {
     // The file is created
     fputs(message, file);
+    fputs("\n",file);
   }
 
   if(file){

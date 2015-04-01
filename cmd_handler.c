@@ -5,13 +5,13 @@
 #define BUF_SIZE 4096   // Buffer size
 #define DATA_PORT 55554 // Listening server port number
 
-const char * CmdStrings[] = { "USER","PASS","SYST","PORT","RETR","STOR","LIST","TYPE", "FEAT"};
+const char * CmdStrings[] = { "USER","PASS","SYST","PORT","RETR","STOR","LIST","TYPE", "FEAT","PWD "};
 
 enum Command_Type getCommandType(char* cmd){
   for (int i = 0;i<NB_CMD;i++){
     int ok = 1;
     for(int j=0 ;j<CMD_LENGTH;j++){
-      if(cmd[j]!=CmdStrings[i][j]){
+      if(cmd[j]!=CmdStrings[i][j]&&CmdStrings[i][j]!=' '){
         ok=0;
       }
     }
@@ -47,8 +47,9 @@ int getPort(char * portRequest){
   return port;
 }
 
-void parseFileName(char* buffer,char * cmdString,char * fileName){
-	fileName = buffer + 4;
+void parseFileName(char* buffer,char * fileName){
+	strcpy(fileName,buffer+5);
+    fileName[strlen(fileName)-2]='\0';
 }
 
 char * getType(char * typeRequest){
@@ -80,7 +81,7 @@ void handleRequest(int cfd, struct sockaddr dist_addr){
   // data connexion settings
   int data_client_fd; /* Listening and connected sockets */
   int dataPort;
-
+  char fileName[PATH_MAX];
 
   while ((n_bytes_read = readLine(cfd, buf, BUFFER_SIZE)) > 0) {
     buf[n_bytes_read] = '\0';
@@ -106,8 +107,22 @@ void handleRequest(int cfd, struct sockaddr dist_addr){
       break;
       case RETR:
       printf("Retr command received\n");
+      respond(cfd, 150, "Accepted data connection");
+      parseFileName(buf,fileName);
+      getFileData(data_client_fd,fileName);
+
+	  close(data_client_fd);
+      respond(cfd,226,"File successfully transferred.");
+      
       break;
       case STOR:
+      printf("Stor command received\n");
+      respond(cfd, 150, "Accepted data connection");
+      parseFileName(buf,fileName);
+      storFile(data_client_fd,fileName);
+
+	  close(data_client_fd);
+      respond(cfd,226,"File successfully transferred.");
       break;
       case LIST:
       printf("List command received\n");
@@ -123,12 +138,26 @@ void handleRequest(int cfd, struct sockaddr dist_addr){
       type = getType(buf);
       printf("Type command received, type: %s\n", type);
       respond(cfd, 200, "Switching to type");
+      break;
+
       case FEAT://Filezilla needs this command, that asks for features of the server, so we send and empty list.
       respond(cfd,211,"Extensions supported:");
       respond(cfd,211,"End");
       break;
+
+      case PWD:
+      printf("PWD command received\n");
+      char wd[PATH_MAX];
+      getWD(wd);
+      //sprintf(wd,"%s\"",wd);
+      strcat(wd," is your current location");
+      respond(cfd,257,wd);
+      //257 "/home/parkki" is your current location
+
+      break;
+
       case UNKNOWN:
-      printf("Unknown command\n");
+      printf("Unknown command : %s\n",buf);
       break;
     }
   }
