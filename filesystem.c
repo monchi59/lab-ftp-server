@@ -65,4 +65,3 @@ void storFile(int input_fd,char* file){
     }
     close(fileFd);
 }
-

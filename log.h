@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 
 #define ACCESS_LOG_FILE "access.log"
 #define ERROR_LOG_FILE "error.log"

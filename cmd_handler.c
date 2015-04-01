@@ -21,7 +21,7 @@ enum Command_Type getCommandType(char* cmd){
   return UNKNOWN;
 }
 
-const char * getStrForCmd( int enumVal )
+const char * getStrForCmd(int enumVal)
 {
   return CmdStrings[enumVal];
 }
@@ -34,10 +34,10 @@ int getPort(char * portRequest){
   strcpy(str, portRequest);
 
   port1 = strtok(str, delimiter);
-  port1 = strtok(NULL, delimiter);
-  port1 = strtok(NULL, delimiter);
-  port1 = strtok(NULL, delimiter);
-  port1 = strtok(NULL, delimiter);
+  int i;
+  for(i = 0; i < 4; i++){
+    port1 = strtok(NULL, delimiter);
+  }
   port2 = strtok(NULL, delimiter);
 
   int port = atoi(port1);
@@ -65,14 +65,22 @@ char * getType(char * typeRequest){
 
 void handleRequest(int cfd, struct sockaddr dist_addr){
 
-  int connectionState = 0;
+  // Log the new connexion
+  struct sockaddr_in dist_addr_in = *((struct sockaddr_in*)&dist_addr);
+  char ipString[BUFFER_SIZE];
+  sprintf(ipString,"Connexion from %s", inet_ntoa(dist_addr_in.sin_addr));
+  Log(ipString);
+
+  // Initialize current server type mode
   char * type = "A";
 
   char buf[BUFFER_SIZE];
   ssize_t n_bytes_read;
   char cmd[4];
 
-  if(connectionState ==0){
+  int connectionState = 0;
+
+  if(connectionState == 0){
     respond(cfd, 220, "OK");
     connectionState++;
   }
@@ -140,7 +148,7 @@ void respond(int cfd,int code, char* str){
   sprintf(response,"%d %s\n", code,str);
   printf("Respond: %d %s\n", code,str);
   if (write(cfd, response, strlen(response)) != strlen(response)){
-    LogErrExit("write() failed\n");
+    LogErrExit("write() failed");
   }
 
 }
@@ -151,7 +159,7 @@ void respondData(int data_connected_fd, char* str){
   sprintf(response,"%s\n", str);
   printf("Respond data: %s\n",str);
   if (write(data_connected_fd, response, strlen(response)) != strlen(response)){
-    LogErrExit("write() failed\n");
+    LogErrExit("write() failed");
   }
 
 }
@@ -162,7 +170,7 @@ void openDataConnexion(int * data_client_fd, struct sockaddr client_addr, int po
 
   *data_client_fd = socket(AF_INET, SOCK_STREAM, 0);
   if (*data_client_fd == -1){
-    LogErrExit("socket\n");
+    LogErrExit("data connexion socket");
   }
 
   struct sockaddr_in client_addr_in = *((struct sockaddr_in*)&client_addr);      /* server's address information */
@@ -170,6 +178,6 @@ void openDataConnexion(int * data_client_fd, struct sockaddr client_addr, int po
 
   /* Connect to the server host */
   if (connect(*data_client_fd, (struct sockaddr *)&client_addr_in, sizeof(struct sockaddr)) == -1){
-    LogErrExit("Failure connect\n");
+    LogErrExit("Failure connect");
   }
 }

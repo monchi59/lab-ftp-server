@@ -6,6 +6,16 @@
 
 time_t t;
 
+void addTime(char * message){
+  t = time(NULL);
+  char s[1000];
+  char out[1000];
+  struct tm * p = localtime(&t);
+  strftime(s, 1000, "%F %X", p);
+  sprintf(out, "[%s]: %s", s, message);
+  strcpy(message, out);
+}
+
 void Log(char *message) {
   FILE *file;
 
@@ -16,12 +26,8 @@ void Log(char *message) {
   } else {
     // The file is created let's log and clse the file
 
-    // TODO put it in a function called by other loggers
-    t = time(NULL);
-    char s[1000];
-    struct tm * p = localtime(&t);
-    strftime(s, 1000, "%A, %B %d %Y %H:%H:%S", p);
-    fprintf(file, "[%s]: %s", s, message);
+    addTime(message);
+    fprintf(file, "%s\n", message);
   }
 
   if(file){
@@ -39,7 +45,8 @@ void LogErr(char *message) {
     return;
   } else {
     // The file is created
-    fputs(message, file);
+    addTime(message);
+    fprintf(file, "%s\n", message);
   }
 
   if(file){
@@ -56,7 +63,8 @@ void LogErrExit(char *message) {
     return;
   } else {
     // The file is created
-    fputs(message, file);
+    addTime(message);
+    fprintf(file, "%s\n", message);
     exit(EXIT_FAILURE);
   }
 
