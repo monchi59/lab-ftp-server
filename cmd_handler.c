@@ -2,7 +2,7 @@
 
 #define BUF_SIZE 4096   // Buffer size
 
-const char * CmdStrings[] = { "USER","PASS","SYST","PORT","RETR","STOR","LIST"};
+const char * CmdStrings[] = { "USER","PASS","SYST","PORT","RETR","STOR","LIST","FEAT"};
 
 
 enum Command_Type getCommandType(char* cmd){
@@ -91,6 +91,10 @@ void handleRequest(int cfd)
       case LIST:
       respond(cfd, 150, "Here comes the directory list");
       //TODO send the list via the data channel
+      break;
+      case FEAT://Filezilla needs this command, that asks for features of the server, so we send and empty list.
+      respond(cfd,211,"Extensions supported:");
+      respond(cfd,211,"End");
       break;
       case UNKNOWN:
       break;

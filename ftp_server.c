@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
   Log("Hello accress log\n");
   LogErr("Hello non-blocking error log\n");
 
-  initialise_server(&listening_fd, &server_addr);
+  initialise_server(&listening_fd, &server_addr,PORT);
 
   printf("FTP server listening on port: %d\n", ntohs(server_addr.sin_port));
 
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
 
 }
 
-void initialise_server(int * listening_fd, struct sockaddr_in * server_addr){
+void initialise_server(int * listening_fd, struct sockaddr_in * server_addr,int port){
 
   // Create the socket file descriptor
   if ((*listening_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1){
@@ -82,7 +82,7 @@ void initialise_server(int * listening_fd, struct sockaddr_in * server_addr){
 
   // Server address initialisation
   server_addr->sin_family = AF_INET;
-  server_addr->sin_port = htons(PORT);     /* short, network byte order */
+  server_addr->sin_port = htons(port);     /* short, network byte order */
   server_addr->sin_addr.s_addr = INADDR_ANY; /* automatically fill with my IP */
   memset(&(server_addr->sin_zero), '\0', 8); /* zero the rest of the struct */
 
@@ -94,6 +94,6 @@ void initialise_server(int * listening_fd, struct sockaddr_in * server_addr){
   /* Marks the socket as a passive socket (listening socket)
      and set the maximum number of pending connections to BACKLOG */
   if (listen(*listening_fd, BACKLOG) == -1){
-    LogErrExit("Binding \n");
+    LogErrExit("Listening \n");
   }
 }

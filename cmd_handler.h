@@ -10,12 +10,13 @@
 #include <unistd.h>
 #include "read_line.h"
 #include "log.h"
+#include "ftp_server.h"
 
-#define NB_CMD 7
+#define NB_CMD 8
 #define CMD_LENGTH 4
 #define BUFFER_SIZE 128
 
-enum Command_Type{ USER, PASS, SYST, PORT, RETR, STOR, LIST,UNKNOWN};
+enum Command_Type{ USER, PASS, SYST, PORT, RETR, STOR, LIST,FEAT,UNKNOWN};
 
 const char * getStrForCmd( int enumVal );
 enum Command_Type getCommandType(char* cmd);
@@ -25,5 +26,7 @@ int getPort(char * portRequest);
 void handleRequest(int cfd);
 
 void respond(int cfd,int code, char* str);
+
+void sendData(int data_connection_fd,int data_file_fd);
 
 #endif
