@@ -16,7 +16,7 @@
 #include "log.h"
 
 
-#define BUF_SIZE 1448
+#define DATA_BUFFER_SIZE 1448
 
 void listDir(int output_fd,char* directory);
 void getFileData(int output_fd,char* file);
