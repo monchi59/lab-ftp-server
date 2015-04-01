@@ -31,6 +31,6 @@ void handleRequest(int cfd, struct sockaddr dist_addr);
 void respond(int cfd,int code, char* str);
 void respondData(int cfd, char* str);
 
-void openDataConnexion(int * data_listening_fd, struct sockaddr client_addr);
+void openDataConnexion(int * data_listening_fd, struct sockaddr client_addr, int port);
 
 #endif
