@@ -72,6 +72,9 @@ void handleRequest(int cfd)
     connectionState++;
   }
 
+  int data_fd; /* Listening and connected sockets */
+  struct sockaddr_in data_addr; /* this server address information */
+
 
   while ((n_bytes_read = readLine(cfd, buf, BUFFER_SIZE)) > 0) {
     buf[n_bytes_read] = '\0';
@@ -90,7 +93,9 @@ void handleRequest(int cfd)
       respond(cfd, 215, "Unix");
       break;
       case PORT:
-      printf("Port command received, port: %d\n", getPort(buf));
+      int port = getPort(buf);
+      printf("Port command received, port: %d\n", );
+      initialise_server(&data_fd, &data_addr,port);
       // Create new connexion on new port.
       respond(cfd, 215, "Unix");
       break;
@@ -128,4 +133,29 @@ void respond(int cfd,int code, char* str){
     LogErrExit("write() failed");
   }
 
+}
+void sendData(int data_connection_fd,int data_file_fd){
+	struct sockaddr_in connected_fd = accept(data_connection_fd, NULL, NULL);  /* Wait for connection */
+      if (connected_fd == -1) {
+        LogErrExit("Failure in accept()\n");
+      }
+
+      /* Handle each client request in a new child process */
+      switch (fork()) {
+      case -1:
+          LogErrExit("Fork issue: Can't create child (%s)");
+          close(connected_fd);                 /* Give up on this client */
+          break;                      /* May be temporary; try next client */
+      case 0:                         /* Child */
+          // Handle the request
+          handleRequest(connected_fd);
+          close(listening_fd);                 /* Unneeded copy of listening socket */
+          /* The child process has to call _exit() instead of exit() so that it
+          does not flush stdio buffers and that only one process calls exit handlers. */
+          exit(EXIT_SUCCESS);
+
+      default:                        /* Parent */
+          close(connected_fd);                 /* Unneeded copy of connected socket */
+          break;                      /* Loop to accept next connection */
+      }
 }
