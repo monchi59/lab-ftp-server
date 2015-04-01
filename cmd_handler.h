@@ -19,6 +19,7 @@ enum Command_Type{ USER, PASS, SYST, PORT, RETR, STOR, LIST,UNKNOWN};
 
 const char * getStrForCmd( int enumVal );
 enum Command_Type getCommandType(char* cmd);
+int getPort(char * portRequest);
 
 //static void handleRequest(int cfd, struct sockaddr_in dist_addr);
 void handleRequest(int cfd);

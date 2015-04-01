@@ -1,5 +1,7 @@
 #include "cmd_handler.h"
 
+#define BUF_SIZE 4096   // Buffer size
+
 const char * CmdStrings[] = { "USER","PASS","SYST","PORT","RETR","STOR","LIST"};
 
 
@@ -22,11 +24,34 @@ const char * getStrForCmd( int enumVal )
   return CmdStrings[enumVal];
 }
 
+int getPort(char * portRequest){
+
+  char delimiter[2] = ",";
+  char str[BUF_SIZE];
+  char * port1;
+  char * port2;
+  strcpy(str, portRequest);
+
+  port1 = strtok(str, delimiter);
+  port1 = strtok(NULL, delimiter);
+  port1 = strtok(NULL, delimiter);
+  port1 = strtok(NULL, delimiter);
+  port1 = strtok(NULL, delimiter);
+  port2 = strtok(NULL, delimiter);
+
+  int port = atoi(port1);
+  port = port<<8;
+  port = port + atoi(port2);
+
+   return port;
+}
+
 //static void handleRequest(int cfd, struct sockaddr_in dist_addr)
 void handleRequest(int cfd)
 {
 
   int connectionState = 0;
+  char * type = "A";
 
   char buf[BUFFER_SIZE];
   ssize_t n_bytes_read;
@@ -47,15 +72,16 @@ void handleRequest(int cfd)
       respond(cfd, 331, "Please specify a password");
       break;
       case PASS:
-      respond(cfd, 230, "Login successful.");
       printf("Pass command received\n");
+      respond(cfd, 230, "Login successful.");
       break;
       case SYST:
-      respond(cfd, 215, "Unix");
       printf("Syst command received\n");
+      respond(cfd, 215, "Unix");
       break;
       case PORT:
-      printf("Port command received\n");
+      printf("Port command received, port: %d\n", getPort(buf));
+      // Create new connexion on new port.
       break;
       case RETR:
       printf("Retr command received\n");
@@ -63,6 +89,8 @@ void handleRequest(int cfd)
       case STOR:
       break;
       case LIST:
+      respond(cfd, 150, "Here comes the directory list");
+      //TODO send the list via the data channel
       break;
       case UNKNOWN:
       break;
