@@ -1,6 +1,8 @@
 #ifndef CMD_HANDLER_H
 #define CMD_HANDLER_H
 
+
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -27,7 +29,8 @@ char * getType(char * typeRequest);
 void handleRequest(int cfd);
 
 void respond(int cfd,int code, char* str);
+void respondData(int cfd, char* str);
 
-void sendData(int data_connection_fd,int data_file_fd);
+void openDataConnexion(int * data_listening_fd, int * data_connected_fd);
 
 #endif

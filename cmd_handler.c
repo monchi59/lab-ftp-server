@@ -72,7 +72,8 @@ void handleRequest(int cfd)
     connectionState++;
   }
 
-  int data_fd; /* Listening and connected sockets */
+  int data_listening_fd, data_connected_fd; /* Listening and connected sockets */
+  int dataPort;
   struct sockaddr_in data_addr; /* this server address information */
 
 
@@ -93,10 +94,11 @@ void handleRequest(int cfd)
       respond(cfd, 215, "Unix");
       break;
       case PORT:
-      int port = getPort(buf);
-      printf("Port command received, port: %d\n", );
-      initialise_server(&data_fd, &data_addr,port);
+      dataPort = getPort(buf);
+      printf("Port command received, port: %d\n", dataPort);
+      initialise_server(&data_listening_fd, &data_addr,dataPort);
       // Create new connexion on new port.
+      printf("New connexion initialised\n");
       respond(cfd, 215, "Unix");
       break;
       case RETR:
@@ -105,7 +107,10 @@ void handleRequest(int cfd)
       case STOR:
       break;
       case LIST:
+      printf("list command received\n");
       respond(cfd, 150, "Here comes the directory list");
+      openDataConnexion(&data_listening_fd, &data_connected_fd);
+      //respondData(&data_listening_fd, "file1\nfile2\nfile3\n");
       //TODO send the list via the data channel
       break;
       case TYPE:
@@ -134,9 +139,23 @@ void respond(int cfd,int code, char* str){
   }
 
 }
-void sendData(int data_connection_fd,int data_file_fd){
-	struct sockaddr_in connected_fd = accept(data_connection_fd, NULL, NULL);  /* Wait for connection */
-      if (connected_fd == -1) {
+
+
+void respondData(int data_connected_fd, char* str){
+  char response[BUFFER_SIZE];
+  sprintf(response,"%s\n", str);
+  printf("Respond data: %s\n",str);
+  if (write(data_connected_fd, response, strlen(response)) != strlen(response)){
+    LogErrExit("write() failed");
+  }
+
+}
+
+
+
+void openDataConnexion(int * data_listening_fd, int * data_connected_fd){
+	*data_connected_fd = accept(*data_listening_fd, NULL, NULL);  /* Wait for connection */
+      if (*data_connected_fd == -1) {
         LogErrExit("Failure in accept()\n");
       }
 
@@ -144,18 +163,19 @@ void sendData(int data_connection_fd,int data_file_fd){
       switch (fork()) {
       case -1:
           LogErrExit("Fork issue: Can't create child (%s)");
-          close(connected_fd);                 /* Give up on this client */
+          close(*data_connected_fd);                 /* Give up on this client */
           break;                      /* May be temporary; try next client */
       case 0:                         /* Child */
           // Handle the request
-          handleRequest(connected_fd);
-          close(listening_fd);                 /* Unneeded copy of listening socket */
+          //handleRequest(*data_connected_fd);
+          respondData(*data_connected_fd, "file1\nfile2\nfile3\n");
+          close(*data_connected_fd);                 /* Unneeded copy of listening socket */
           /* The child process has to call _exit() instead of exit() so that it
           does not flush stdio buffers and that only one process calls exit handlers. */
           exit(EXIT_SUCCESS);
 
       default:                        /* Parent */
-          close(connected_fd);                 /* Unneeded copy of connected socket */
+          close(*data_connected_fd);                 /* Unneeded copy of connected socket */
           break;                      /* Loop to accept next connection */
       }
 }

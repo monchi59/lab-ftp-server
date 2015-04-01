@@ -25,9 +25,6 @@ int main(int argc, char *argv[])
   int listening_fd, connected_fd; /* Listening and connected sockets */
   struct sockaddr_in server_addr; /* this server address information */
 
-  char * typereq = "TYPE I";
-  printf("getype result: %s\n", getType(typereq));
-
   // Log examples
   Log("Hello accress log\n");
   LogErr("Hello non-blocking error log\n");
@@ -90,6 +87,7 @@ void initialise_server(int * listening_fd, struct sockaddr_in * server_addr,int 
 
   // Binding the server address to the listening socket
   if (bind(*listening_fd, (struct sockaddr *)server_addr, sizeof(struct sockaddr)) == -1){
+    printf("Binding error\n");
     LogErrExit("Binding \n");
   }
 
