@@ -33,4 +33,5 @@ void respondData(int cfd, char* str);
 
 void openDataConnexion(int * data_listening_fd, int * data_connected_fd);
 
+void parseFileName(char* buffer,char * cmdString,char * fileName);
 #endif

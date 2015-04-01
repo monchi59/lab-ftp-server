@@ -44,6 +44,11 @@ int getPort(char * portRequest){
    return port;
 }
 
+void parseFileName(char* buffer,char * cmdString,char * fileName){
+	filename = strstr(buffer,cmdString);
+	filename++; //to remove the first ' ' char
+}
+
 char * getType(char * typeRequest){
   char delimiter[2] = " ";
   char str[BUF_SIZE];
@@ -53,7 +58,7 @@ char * getType(char * typeRequest){
   type = strtok(str, delimiter);
   type = strtok(NULL, delimiter);
 
-   return type;
+  return type;
 }
 
 //static void handleRequest(int cfd, struct sockaddr_in dist_addr)
