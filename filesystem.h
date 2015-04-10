@@ -3,7 +3,7 @@
 
 #define _BSD_SOURCE
 
-#include <dirent.h> 
+#include <dirent.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <sys/stat.h>
@@ -27,6 +27,8 @@ void listDir(int output_fd,char* directory);
 void getFileData(int output_fd,char* file);
 void storFile(int input_fd,char* file);
 void getWD(char* wd);
+char * insertStr(char * src, char * dst, int index);
+char * addBackR(char* str);
 
 
 #endif

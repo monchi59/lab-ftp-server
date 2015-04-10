@@ -5,7 +5,7 @@
 #define BUF_SIZE 4096   // Buffer size
 #define DATA_PORT 55554 // Listening server port number
 
-const char * CmdStrings[] = { "USER","PASS","SYST","PORT","RETR","STOR","LIST","TYPE", "FEAT","PWD "};
+const char * CmdStrings[] = { "USER","PASS","SYST","PORT","RETR","STOR","LIST","TYPE", "FEAT","PWD ", "QUIT"};
 
 enum Command_Type getCommandType(char* cmd){
   for (int i = 0;i<NB_CMD;i++){
@@ -121,7 +121,7 @@ void handleRequest(int cfd, struct sockaddr dist_addr){
 
 	  close(data_client_fd);
       respond(cfd,226,"File successfully transferred.");
-      
+
       break;
       case STOR:
       printf("Stor command received\n");
@@ -161,7 +161,11 @@ void handleRequest(int cfd, struct sockaddr dist_addr){
       strcat(wd," is your current location");
       respond(cfd,257,wd);
       //257 "/home/parkki" is your current location
+      break;
 
+      case QUIT:
+      printf("QUIT command received\n");
+      close(cfd);
       break;
 
       case UNKNOWN:

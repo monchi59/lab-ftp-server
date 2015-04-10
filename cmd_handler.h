@@ -16,11 +16,11 @@
 #include "log.h"
 #include "ftp_server.h"
 
-#define NB_CMD 10
+#define NB_CMD 11
 #define CMD_LENGTH 4
 #define BUFFER_SIZE 128
 
-enum Command_Type{ USER, PASS, SYST, PORT, RETR, STOR, LIST,TYPE,FEAT,PWD,UNKNOWN};
+enum Command_Type{ USER, PASS, SYST, PORT, RETR, STOR, LIST,TYPE,FEAT,PWD,QUIT,UNKNOWN};
 
 const char * getStrForCmd( int enumVal );
 enum Command_Type getCommandType(char* cmd);
