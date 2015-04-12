@@ -1,7 +1,7 @@
 # lab-ftp-server
 Very Simple FTP server implemented in C.
 
-Handles concurrent client connections ond different processes.
+Handles concurrent client connections on different processes.
 
 ## Build
 ```
@@ -17,7 +17,7 @@ Login commands desn't check credentials:
 System is always "UNIX":
 * SYST
 
-No features are proposed:
+No additional features are proposed:
 * FEAT
 
 Handled:
